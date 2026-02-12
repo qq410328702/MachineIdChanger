@@ -8,12 +8,14 @@
 - 生成新的 GUID（标准格式或无连字符格式）
 - 修改注册表中的 MachineGuid
 - 自动请求管理员权限
+- 查看硬件信息（硬盘序列号、主板序列号、BIOS 序列号、CPU ID、MAC 地址）
 
 ## 技术栈
 
 - .NET 8.0
 - Windows Forms
 - Microsoft.Win32.Registry
+- System.Management (用于读取硬件信息)
 
 ## 注册表位置
 
@@ -56,6 +58,18 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 - **生成新 GUID**: 生成标准格式 GUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
 - **生成无连字符 GUID**: 生成无连字符格式 GUID (xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
 - **应用修改**: 将新 GUID 写入注册表
+- **查看硬件信息**: 显示硬盘、主板、BIOS、CPU、网卡等硬件信息
+
+## 硬件信息功能
+
+点击"查看硬件信息"按钮可以查看以下信息：
+- 主板序列号和型号
+- BIOS 序列号
+- 处理器 ID 和型号
+- 硬盘序列号和型号（支持多个硬盘）
+- 网卡 MAC 地址（支持多个网卡）
+
+硬件信息可以复制到剪贴板方便保存。
 
 ## 安全提示
 
