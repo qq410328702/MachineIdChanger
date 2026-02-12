@@ -20,9 +20,24 @@ public class HardwareInfoHelper
             {
                 var serialNumber = disk["SerialNumber"]?.ToString()?.Trim();
                 var model = disk["Model"]?.ToString()?.Trim();
-                if (!string.IsNullOrEmpty(serialNumber))
+                var size = disk["Size"]?.ToString();
+                
+                if (!string.IsNullOrEmpty(model))
                 {
-                    serialNumbers.Add($"{model}: {serialNumber}");
+                    var sizeGB = "";
+                    if (!string.IsNullOrEmpty(size) && long.TryParse(size, out long sizeBytes))
+                    {
+                        sizeGB = $" ({sizeBytes / 1024 / 1024 / 1024} GB)";
+                    }
+                    
+                    if (!string.IsNullOrEmpty(serialNumber))
+                    {
+                        serialNumbers.Add($"  {model}{sizeGB}\n  序列号: {serialNumber}");
+                    }
+                    else
+                    {
+                        serialNumbers.Add($"  {model}{sizeGB}\n  序列号: 未找到");
+                    }
                 }
             }
         }
@@ -117,14 +132,26 @@ public class HardwareInfoHelper
         var macAddresses = new List<string>();
         try
         {
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL AND PhysicalAdapter = True");
+            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL");
             foreach (ManagementObject adapter in searcher.Get())
             {
                 var mac = adapter["MACAddress"]?.ToString()?.Trim();
                 var name = adapter["Name"]?.ToString()?.Trim();
-                if (!string.IsNullOrEmpty(mac))
+                var adapterType = adapter["AdapterType"]?.ToString()?.Trim();
+                
+                if (!string.IsNullOrEmpty(mac) && !string.IsNullOrEmpty(name))
                 {
-                    macAddresses.Add($"{name}: {mac}");
+                    // 过滤掉虚拟网卡和蓝牙PAN
+                    if (name.Contains("Virtual", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("VMware", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("VirtualBox", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("Hyper-V", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("Personal Area Network", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                    
+                    macAddresses.Add($"  {name}\n  MAC: {mac}");
                 }
             }
         }

@@ -231,53 +231,66 @@ public partial class MainForm : Form
             Application.DoEvents();
 
             var info = new System.Text.StringBuilder();
-            info.AppendLine("========== 硬件信息 ==========\n");
+            info.AppendLine("========================================");
+            info.AppendLine("           硬件信息详情");
+            info.AppendLine("========================================\n");
 
             // 主板信息
-            info.AppendLine("【主板序列号】");
+            info.AppendLine("【主板信息】");
             info.AppendLine(HardwareInfoHelper.GetMotherboardSerialNumber());
-            info.AppendLine();
+            info.AppendLine("\n----------------------------------------\n");
 
             // BIOS 信息
             info.AppendLine("【BIOS 序列号】");
             info.AppendLine(HardwareInfoHelper.GetBiosSerialNumber());
-            info.AppendLine();
+            info.AppendLine("\n----------------------------------------\n");
 
             // CPU 信息
-            info.AppendLine("【处理器 ID】");
+            info.AppendLine("【处理器信息】");
             info.AppendLine(HardwareInfoHelper.GetProcessorId());
-            info.AppendLine();
+            info.AppendLine("\n----------------------------------------\n");
 
             // 硬盘信息
-            info.AppendLine("【硬盘序列号】");
+            info.AppendLine("【硬盘信息】");
             var disks = HardwareInfoHelper.GetDiskSerialNumbers();
             if (disks.Count > 0)
             {
-                foreach (var disk in disks)
+                for (int i = 0; i < disks.Count; i++)
                 {
-                    info.AppendLine(disk);
+                    info.AppendLine($"硬盘 {i + 1}:");
+                    info.AppendLine(disks[i]);
+                    if (i < disks.Count - 1)
+                    {
+                        info.AppendLine();
+                    }
                 }
             }
             else
             {
-                info.AppendLine("未找到硬盘信息");
+                info.AppendLine("  未找到硬盘信息");
             }
-            info.AppendLine();
+            info.AppendLine("\n----------------------------------------\n");
 
             // MAC 地址
-            info.AppendLine("【网卡 MAC 地址】");
+            info.AppendLine("【网卡信息】");
             var macs = HardwareInfoHelper.GetMacAddresses();
             if (macs.Count > 0)
             {
-                foreach (var mac in macs)
+                for (int i = 0; i < macs.Count; i++)
                 {
-                    info.AppendLine(mac);
+                    info.AppendLine($"网卡 {i + 1}:");
+                    info.AppendLine(macs[i]);
+                    if (i < macs.Count - 1)
+                    {
+                        info.AppendLine();
+                    }
                 }
             }
             else
             {
-                info.AppendLine("未找到网卡信息");
+                info.AppendLine("  未找到网卡信息");
             }
+            info.AppendLine("\n========================================");
 
             // 显示硬件信息窗口
             var infoForm = new Form
