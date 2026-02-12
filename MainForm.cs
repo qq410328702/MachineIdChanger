@@ -296,36 +296,40 @@ public partial class MainForm : Form
             var infoForm = new Form
             {
                 Text = "硬件信息",
-                Size = new Size(700, 500),
+                Size = new Size(750, 550),
                 StartPosition = FormStartPosition.CenterParent,
                 FormBorderStyle = FormBorderStyle.Sizable,
                 MinimizeBox = false,
                 MaximizeBox = true
             };
 
-            var txtInfo = new TextBox
+            var richTextInfo = new RichTextBox
             {
-                Multiline = true,
                 ReadOnly = true,
-                ScrollBars = ScrollBars.Both,
+                ScrollBars = RichTextBoxScrollBars.Both,
                 Dock = DockStyle.Fill,
                 Font = new Font("Consolas", 10),
-                Text = info.ToString()
+                BackColor = Color.FromArgb(250, 250, 250),
+                BorderStyle = BorderStyle.None
             };
+
+            // 添加带颜色的文本
+            AddColoredHardwareInfo(richTextInfo);
 
             var btnCopy = new Button
             {
                 Text = "复制到剪贴板",
                 Dock = DockStyle.Bottom,
-                Height = 40
+                Height = 40,
+                Font = new Font("Microsoft YaHei UI", 10)
             };
             btnCopy.Click += (s, ev) =>
             {
-                Clipboard.SetText(info.ToString());
+                Clipboard.SetText(richTextInfo.Text);
                 MessageBox.Show("硬件信息已复制到剪贴板", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
-            infoForm.Controls.Add(txtInfo);
+            infoForm.Controls.Add(richTextInfo);
             infoForm.Controls.Add(btnCopy);
             infoForm.ShowDialog();
 
@@ -338,5 +342,135 @@ public partial class MainForm : Form
             lblStatus.ForeColor = Color.Red;
             MessageBox.Show($"读取硬件信息失败:\n{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private void AddColoredHardwareInfo(RichTextBox rtb)
+    {
+        rtb.Clear();
+
+        // 标题
+        AppendText(rtb, "========================================\n", Color.DarkBlue, true);
+        AppendText(rtb, "           硬件信息详情\n", Color.DarkBlue, true);
+        AppendText(rtb, "========================================\n\n", Color.DarkBlue, true);
+
+        // 主板信息
+        AppendText(rtb, "【主板信息】\n", Color.DarkGreen, true);
+        var motherboard = HardwareInfoHelper.GetMotherboardSerialNumber();
+        var mbParts = motherboard.Split(':');
+        if (mbParts.Length == 2)
+        {
+            AppendText(rtb, mbParts[0] + ": ", Color.Black, false);
+            AppendText(rtb, mbParts[1].Trim() + "\n", Color.Red, true);
+        }
+        else
+        {
+            AppendText(rtb, motherboard + "\n", Color.Black, false);
+        }
+        AppendText(rtb, "\n----------------------------------------\n\n", Color.Gray, false);
+
+        // BIOS 信息
+        AppendText(rtb, "【BIOS 序列号】\n", Color.DarkGreen, true);
+        AppendText(rtb, HardwareInfoHelper.GetBiosSerialNumber() + "\n", Color.Red, true);
+        AppendText(rtb, "\n----------------------------------------\n\n", Color.Gray, false);
+
+        // CPU 信息
+        AppendText(rtb, "【处理器信息】\n", Color.DarkGreen, true);
+        var cpu = HardwareInfoHelper.GetProcessorId();
+        var cpuParts = cpu.Split(':');
+        if (cpuParts.Length == 2)
+        {
+            AppendText(rtb, cpuParts[0] + ": ", Color.Black, false);
+            AppendText(rtb, cpuParts[1].Trim() + "\n", Color.Red, true);
+        }
+        else
+        {
+            AppendText(rtb, cpu + "\n", Color.Black, false);
+        }
+        AppendText(rtb, "\n----------------------------------------\n\n", Color.Gray, false);
+
+        // 硬盘信息
+        AppendText(rtb, "【硬盘信息】\n", Color.DarkGreen, true);
+        var disks = HardwareInfoHelper.GetDiskSerialNumbers();
+        if (disks.Count > 0)
+        {
+            for (int i = 0; i < disks.Count; i++)
+            {
+                AppendText(rtb, $"硬盘 {i + 1}:\n", Color.DarkBlue, false);
+                var diskLines = disks[i].Split('\n');
+                foreach (var line in diskLines)
+                {
+                    if (line.Contains("序列号:"))
+                    {
+                        var parts = line.Split(':');
+                        AppendText(rtb, parts[0] + ": ", Color.Black, false);
+                        AppendText(rtb, parts[1].Trim() + "\n", Color.Red, true);
+                    }
+                    else
+                    {
+                        AppendText(rtb, line + "\n", Color.Black, false);
+                    }
+                }
+                if (i < disks.Count - 1)
+                {
+                    AppendText(rtb, "\n", Color.Black, false);
+                }
+            }
+        }
+        else
+        {
+            AppendText(rtb, "  未找到硬盘信息\n", Color.Gray, false);
+        }
+        AppendText(rtb, "\n----------------------------------------\n\n", Color.Gray, false);
+
+        // 网卡信息
+        AppendText(rtb, "【网卡信息】\n", Color.DarkGreen, true);
+        var macs = HardwareInfoHelper.GetMacAddresses();
+        if (macs.Count > 0)
+        {
+            for (int i = 0; i < macs.Count; i++)
+            {
+                AppendText(rtb, $"网卡 {i + 1}:\n", Color.DarkBlue, false);
+                var macLines = macs[i].Split('\n');
+                foreach (var line in macLines)
+                {
+                    if (line.Contains("MAC:"))
+                    {
+                        var parts = line.Split(':');
+                        AppendText(rtb, parts[0] + ": ", Color.Black, false);
+                        // MAC地址格式: XX:XX:XX:XX:XX:XX
+                        var macAddr = string.Join(":", parts.Skip(1));
+                        AppendText(rtb, macAddr.Trim() + "\n", Color.Blue, true);
+                    }
+                    else
+                    {
+                        AppendText(rtb, line + "\n", Color.Black, false);
+                    }
+                }
+                if (i < macs.Count - 1)
+                {
+                    AppendText(rtb, "\n", Color.Black, false);
+                }
+            }
+        }
+        else
+        {
+            AppendText(rtb, "  未找到网卡信息\n", Color.Gray, false);
+        }
+        AppendText(rtb, "\n========================================\n", Color.DarkBlue, true);
+    }
+
+    private void AppendText(RichTextBox rtb, string text, Color color, bool bold)
+    {
+        int start = rtb.TextLength;
+        rtb.AppendText(text);
+        int end = rtb.TextLength;
+
+        rtb.Select(start, end - start);
+        rtb.SelectionColor = color;
+        if (bold)
+        {
+            rtb.SelectionFont = new Font(rtb.Font, FontStyle.Bold);
+        }
+        rtb.Select(end, 0);
     }
 }

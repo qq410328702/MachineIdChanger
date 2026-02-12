@@ -141,12 +141,16 @@ public class HardwareInfoHelper
                 
                 if (!string.IsNullOrEmpty(mac) && !string.IsNullOrEmpty(name))
                 {
-                    // 过滤掉虚拟网卡和蓝牙PAN
+                    // 过滤掉虚拟网卡、蓝牙PAN和WAN Miniport
                     if (name.Contains("Virtual", StringComparison.OrdinalIgnoreCase) ||
                         name.Contains("VMware", StringComparison.OrdinalIgnoreCase) ||
                         name.Contains("VirtualBox", StringComparison.OrdinalIgnoreCase) ||
                         name.Contains("Hyper-V", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("Personal Area Network", StringComparison.OrdinalIgnoreCase))
+                        name.Contains("Personal Area Network", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("WAN Miniport", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("Teredo", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("isatap", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("6to4", StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
