@@ -1,0 +1,30 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+.vscode/
+*.pidb
+*.svclog
+*.scc
+
+# NuGet
+*.nupkg
+# NuGet Symbol Packages
+*.snupkg
+
+# Windows
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# Other
+*.log
+*.tmp
